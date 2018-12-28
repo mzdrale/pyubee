@@ -1,0 +1,7 @@
+.vscode/
+.DS_Store/
+Test/
+build/
+dist/
+pyubee.egg-info/
+
