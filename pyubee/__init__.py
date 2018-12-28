@@ -5,6 +5,8 @@ import requests
 import logging
 import sys
 
+_LOGGER = logging.getLogger(__name__)
+
 _DEVICES_REGEX = re.compile(
     r'<tr bgcolor=#[0-9a-fA-F]+>'
     r'<td>([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:'
@@ -31,6 +33,7 @@ class Ubee(object):
         try:
             response = requests.get(url, timeout=4)
         except:
+            _LOGGER.error("Connection to the router failed.")
             return False
 
         title = _LOGIN_REGEX.findall(response.text)
@@ -49,14 +52,16 @@ class Ubee(object):
         try:
             response = requests.post(url, data=payload, timeout=4)
         except:
+            _LOGGER.error("Connection to the router failed.")
             return False
 
-        data = response.text
-        if not data:
-            print('Cannot connect to router')
+        title = _LOGIN_REGEX.findall(response.text)
+        if title:
+            _LOGGER.error("Logging into the router failed. "
+                          "Check username and password.")
             return False
 
-        if response.status_code == 200 and self.session_active():
+        if response.status_code == 200:
             return True
 
         return False
@@ -67,7 +72,7 @@ class Ubee(object):
         try:
             response = requests.get(url, timeout=4)
         except:
-            print('Connection to the router timed out')
+            _LOGGER.error("Connection to the router failed.")
             return False
 
         if response.status_code == 200:
@@ -81,7 +86,7 @@ class Ubee(object):
         try:
             response = requests.get(url, timeout=4)
         except requests.exceptions.Timeout:
-            print('Connection to the router timed out')
+            _LOGGER.error("Connection to the router failed.")
             return []
 
         data = response.text
