@@ -20,7 +20,7 @@ ubee = Ubee(
             )
 
 if not ubee.session_active():
-    ubee.login())
+    ubee.login()
 
 devices = ubee.get_connected_devices()
 
