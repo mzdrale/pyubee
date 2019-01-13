@@ -7,12 +7,18 @@ import sys
 
 _LOGGER = logging.getLogger(__name__)
 
-_DEVICES_REGEX = re.compile(
+_WIFI_DEVICES_REGEX = re.compile(
     r'<tr bgcolor=#[0-9a-fA-F]+>'
     r'<td>([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:'
     r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2})</td>'
     r'<td>\d+</td><td>.+</td><td>\d+\.\d+\.\d+\.\d+</td><td>(.+)</td>'
     r'<td>.+</td><td>\d+</td></tr>'
+)
+_LAN_DEVICES_REGEX = re.compile(
+    r'<tr bgcolor=#[0-9a-fA-F]+>'
+    r'<td>([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:'
+    r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2})</td>'
+    r'<td>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}</td>()'
 )
 _LOGIN_REGEX = re.compile(r'<title>Residential Gateway Login</title>')
 
@@ -91,6 +97,7 @@ class Ubee(object):
 
         data = response.text
 
+        DEVICES = _WIFI_DEVICES_REGEX.findall(data) + _LAN_DEVICES_REGEX.findall(data)
         return {
-            key: val for key, val in _DEVICES_REGEX.findall(data)
+            key: val for key, val in DEVICES
         }
