@@ -27,7 +27,7 @@ class Ubee(object):
     """Represents a session to a Ubee Router."""
 
     def __init__(self, host=None, username=None, password=None):
-        """Initialize a Netgear session."""
+        """Initialize a Ubee session."""
 
         self.host = host
         self.username = username
