@@ -4,4 +4,5 @@ Test/
 build/
 dist/
 pyubee.egg-info/
+__pycache__
 
