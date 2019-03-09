@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pyubee",
-    version="0.2",
+    version="0.3.dev0",
     author="Miroslav Zdrale",
     author_email="mzdrale@gmail.com",
     description="Simple library for getting stats from Ubee routers.",
@@ -18,4 +18,8 @@ setuptools.setup(
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Operating System :: OS Independent",
     ],
+    entry_points={
+        'console_scripts': ['pyubee=pyubee.__main__:main']
+    },
+
 )
