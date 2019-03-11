@@ -22,12 +22,12 @@ MODELS = {
             r'<tr bgcolor=#[0-9a-fA-F]+>'
             r'<td>([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:' # mac address
             r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2})</td>'  # mac address, cont'd
-            r'<td>\d+</td>'  # age?
-            r'<td>.+</td>'  # rssi?
+            r'<td>\d+</td>'  # age
+            r'<td>.+</td>'  # rssi
             r'<td>\d+\.\d+\.\d+\.\d+</td>'  # ip address
-            r'<td>(.+)</td>'  # hostname?
-            r'<td>.+</td>'  # mode?
-            r'<td>\d+</td>'  # speed?
+            r'<td>(.+)</td>'  # hostname
+            r'<td>.+</td>'  # mode
+            r'<td>\d+</td>'  # speed
             r'</tr>'
         ),
         'regex_lan_devices': re.compile(
