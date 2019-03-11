@@ -44,7 +44,7 @@ pyubee
 positional arguments:
   host           Host
   username       Username
-  password       Username
+  password       Password
 
 optional arguments:
   -h, --help     show this help message and exit

@@ -11,7 +11,7 @@ def main():
     parser = argparse.ArgumentParser(description='pyubee')
     parser.add_argument('host', help='Host')
     parser.add_argument('username', help='Username')
-    parser.add_argument('password', help='Username')
+    parser.add_argument('password', help='Password')
     parser.add_argument('--model', default="EVW32C-0N",
                         help='Model, supported models: ' + ', '.join(SUPPORTED_MODELS))
     args = parser.parse_args()
