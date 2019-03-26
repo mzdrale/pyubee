@@ -16,8 +16,7 @@ from pyubee import Ubee
 ubee = Ubee(
                 host='192.168.1.1',
                 username='admin',
-                password='somepassword',
-                model='EVW32C-0N'
+                password='somepassword'
             )
 
 if not ubee.session_active():
@@ -34,7 +33,7 @@ ubee.logout()
 CLI
 ---
 
-A simple command line interface is available to query the router. The cli takes `host`, `username`, and `password` as mandatory arguments. The optional argument model can be used to specify the model of your routers (defaults to `EVW32C-0N`.)
+A simple command line interface is available to query the router. The cli takes `host`, `username`, and `password` as mandatory arguments. The optional argument model can be used to specify the model of your routers. If model is not specified, this tool will try to detect it automatically.
 ```
 $ pyubee --help
 usage: pyubee [-h] [--model MODEL] host username password
@@ -50,9 +49,9 @@ optional arguments:
   -h, --help     show this help message and exit
   --model MODEL  Model, supported models: EVW32C-0N, EVW3200-Wifi
 
-$ pyubee 192.168.1.1 admin somepassword --model EVW3200-Wifi
-AA:BB:CC:DD:EE:FF	192.168.001.010
-FF:EE:DD:CC:BB:AA	192.168.001.011
+$ pyubee 192.168.1.1 admin somepassword
+AA:BB:CC:DD:EE:FF	192.168.1.10
+FF:EE:DD:CC:BB:AA	192.168.1.11
 ```
 
 Notice
@@ -96,3 +95,4 @@ This library was written for and tested with:
 
 * Ubee EVW32C-0N
 * Ubee EVW3200-Wifi
+* Ambit EVW320B
