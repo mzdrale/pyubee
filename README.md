@@ -95,3 +95,4 @@ This library was written for and tested with:
 
 * Ubee EVW32C-0N
 * Ubee EVW3200-Wifi
+* Ambit EVW320B

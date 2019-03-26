@@ -39,7 +39,7 @@ MODELS = {
             r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
         ),
     },
-    'EVW3200-Wifi': {
+    'EVW320B': {
         'url_session_active': '/BasicStatus.asp',
         'url_login': '/goform/loginMR3',
         'url_logout': '/logout.asp',
