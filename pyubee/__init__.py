@@ -92,11 +92,19 @@ class Ubee:
     def _base_url(self):
         return 'http://{}'.format(self.host)
 
+    def _get(self, url):
+        """Do a HTTP GET."""
+        return requests.get(url, timeout=4)
+
+    def _post(self, url, data):
+        """Do a HTTP POST."""
+        return requests.post(url, data=data, timeout=4)
+
     def detect_model(self):
         """Autodetect Ubee model."""
         url = self._base_url + "/RootDevice.xml"
         try:
-            response = requests.get(url, timeout=4)
+            response = self._get(url)
         except RequestException as ex:
             _LOGGER.error("Connection to the router failed: %s", ex)
             return "Unknown"
@@ -113,7 +121,7 @@ class Ubee:
         """Check if session is active."""
         url = self._base_url + self._model_info['url_session_active']
         try:
-            response = requests.get(url, timeout=4)
+            response = self._get(url)
         except RequestException as ex:
             _LOGGER.error("Connection to the router failed: %s", ex)
             return False
@@ -133,7 +141,7 @@ class Ubee:
             'loginPassword': self.password
         }
         try:
-            response = requests.post(url, data=payload, timeout=4)
+            response = self_post(url, data)
         except RequestException as ex:
             _LOGGER.error("Connection to the router failed: %s", ex)
             return False
@@ -153,7 +161,7 @@ class Ubee:
         """Logout from Admin interface"""
         url = self._base_url + self._model_info['url_logout']
         try:
-            response = requests.get(url, timeout=4)
+            response = self._get(url)
         except RequestException as ex:
             _LOGGER.error("Connection to the router failed: %s", ex)
             return False
@@ -177,7 +185,7 @@ class Ubee:
         """Get list of connected devices via ethernet."""
         url = self._base_url + self._model_info['url_connected_devices_lan']
         try:
-            response = requests.get(url, timeout=4)
+            response = self._get(url)
         except RequestException as ex:
             _LOGGER.error("Connection to the router failed: %s", ex)
             return []
@@ -193,7 +201,7 @@ class Ubee:
         """Get list of connected devices via wifi."""
         url = self._base_url + self._model_info['url_connected_devices_wifi']
         try:
-            response = requests.get(url, timeout=4)
+            response = self._get(url)
         except RequestException as ex:
             _LOGGER.error("Connection to the router failed: %s", ex)
             return []
