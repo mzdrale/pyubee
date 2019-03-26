@@ -2,7 +2,6 @@
 
 import logging
 import re
-import sys
 
 import requests
 from requests.exceptions import RequestException
@@ -22,7 +21,7 @@ MODELS = {
         'regex_login': re.compile(r'<title>Residential Gateway Login</title>'),
         'regex_wifi_devices': re.compile(
             r'<tr bgcolor=#[0-9a-fA-F]+>'
-            r'<td>([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:' # mac address
+            r'<td>([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:'  # mac address
             r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2})</td>'  # mac address, cont'd
             r'<td>\d+</td>'  # age
             r'<td>.+</td>'  # rssi
@@ -48,7 +47,7 @@ MODELS = {
         'regex_login': re.compile(r'<title>Residential Gateway Login</title>'),
         'regex_wifi_devices': re.compile(
             r'<tr bgcolor=#[0-9a-fA-F]+>'
-            r'<td>([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:' # mac address
+            r'<td>([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:'  # mac address
             r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2})</td>'  # mac address, cont'd
             r'<td>\d+</td>'  # age
             r'<td>.+</td>'  # rssi
@@ -74,7 +73,6 @@ class Ubee:
 
     def __init__(self, host=None, username=None, password=None, model='detect'):
         """Initialize a Ubee session."""
-
         self.host = host
         self.username = username
         self.password = password
@@ -90,14 +88,17 @@ class Ubee:
 
     @property
     def _base_url(self):
+        """Form base url."""
         return 'http://{}'.format(self.host)
 
     def _get(self, url):
         """Do a HTTP GET."""
+        # pylint: disable=no-self-use
         return requests.get(url, timeout=4)
 
     def _post(self, url, data):
         """Do a HTTP POST."""
+        # pylint: disable=no-self-use
         return requests.post(url, data=data, timeout=4)
 
     def detect_model(self):
@@ -114,8 +115,8 @@ class Ubee:
 
         if entries:
             return entries[1]
-        else:
-            return "Unknown"
+
+        return "Unknown"
 
     def session_active(self):
         """Check if session is active."""
@@ -141,7 +142,7 @@ class Ubee:
             'loginPassword': self.password
         }
         try:
-            response = self_post(url, data)
+            response = self._post(url, payload)
         except RequestException as ex:
             _LOGGER.error("Connection to the router failed: %s", ex)
             return False
@@ -149,7 +150,7 @@ class Ubee:
         title = self._model_info['regex_login'].findall(response.text)
         if title:
             _LOGGER.error("Logging into the router failed. "
-                            "Check username and password.")
+                          "Check username and password.")
             return False
 
         if response.status_code == 200:
@@ -158,7 +159,7 @@ class Ubee:
         return False
 
     def logout(self):
-        """Logout from Admin interface"""
+        """Logout from Admin interface."""
         url = self._base_url + self._model_info['url_logout']
         try:
             response = self._get(url)
@@ -172,7 +173,7 @@ class Ubee:
         return False
 
     def get_connected_devices(self):
-        """Get list of connected devices"""
+        """Get list of connected devices."""
         lan_devices = self.get_connected_devices_lan()
         _LOGGER.debug('LAN devices: %s', lan_devices)
         wifi_devices = self.get_connected_devices_wifi()
@@ -215,6 +216,7 @@ class Ubee:
 
     def _format_mac_address(self, address):
         """Format a given address to a default format."""
+        # pylint: disable=no-self-use
         # remove all ':' and '-'
         bare = address.upper().replace(':', '').replace('-', '')
         return ':'.join(bare[i:i + 2] for i in range(0, 12, 2))

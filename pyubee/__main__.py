@@ -28,7 +28,7 @@ def main():
 
     devices = ubee.get_connected_devices()
 
-    if len(devices) > 0:
+    if devices:
         print("Connected devices:")
         for device in devices:
             print("%s\t%s" % (device, devices[device]))
