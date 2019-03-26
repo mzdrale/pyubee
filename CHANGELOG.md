@@ -3,14 +3,16 @@ This file is used to list changes made in each version of the PyUbee.
 
 ## 0.4 (March 26 2019)
 * Detect Ubee model automatically ([@mzdrale](https://github.com/mzdrale) - [#5](https://github.com/mzdrale/pyubee/pull/5))
+* Move requests GET/POST to own method ([@StevenLooman](https://github.com/StevenLooman))
+* Add `tox` support ([@StevenLooman](https://github.com/StevenLooman))
 
 ## 0.3 (March 12 2019)
 * Add pyubee command line interface ([@StevenLooman](https://github.com/StevenLooman) - [#3](https://github.com/mzdrale/pyubee/pull/3))
 * Add support for EVW3200-Wifi model ([@StevenLooman](https://github.com/StevenLooman) - [#3](https://github.com/mzdrale/pyubee/pull/3))
 
 ## 0.2 (January 13 2019)
-* Get list of WiFi and LAN devices instead of WiFi devices only
-* Updated README.md and CHANGELOG.md
+* Get list of WiFi and LAN devices instead of WiFi devices only ([@mzdrale](https://github.com/mzdrale))
+* Updated README.md and CHANGELOG.md ([@mzdrale](https://github.com/mzdrale))
 
 ## 0.1 (December 28 2018)
-* Initial release
+* Initial release ([@mzdrale](https://github.com/mzdrale))
