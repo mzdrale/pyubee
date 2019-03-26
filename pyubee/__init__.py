@@ -112,7 +112,7 @@ class Ubee:
         data = response.text
         entries = MODEL_REGEX.findall(data)
 
-        if len(entries) > 0:
+        if entries:
             return entries[1]
         else:
             return "Unknown"
