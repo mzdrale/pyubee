@@ -12,7 +12,7 @@ def main():
     parser.add_argument('host', help='Host')
     parser.add_argument('username', help='Username')
     parser.add_argument('password', help='Password')
-    parser.add_argument('--model', default="EVW32C-0N",
+    parser.add_argument('--model', default="detect",
                         help='Model, supported models: ' + ', '.join(SUPPORTED_MODELS))
     args = parser.parse_args()
 
@@ -27,8 +27,13 @@ def main():
             sys.exit(1)
 
     devices = ubee.get_connected_devices()
-    for device in devices:
-        print("%s\t%s" % (device, devices[device]))
+
+    if len(devices) > 0:
+        print("Connected devices:")
+        for device in devices:
+            print("%s\t%s" % (device, devices[device]))
+    else:
+        print("No connected devices found")
 
 
 if __name__ == '__main__':
