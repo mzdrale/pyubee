@@ -33,7 +33,7 @@ ubee.logout()
 CLI
 ---
 
-A simple command line interface is available to query the router. The cli takes `host`, `username`, and `password` as mandatory arguments. The optional argument model can be used to specify the model of your routers (defaults to `EVW32C-0N`.)
+A simple command line interface is available to query the router. The cli takes `host`, `username`, and `password` as mandatory arguments. The optional argument model can be used to specify the model of your routers. If model is not specified, this tool will try to detect automatically.
 ```
 $ pyubee --help
 usage: pyubee [-h] [--model MODEL] host username password
