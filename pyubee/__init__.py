@@ -65,7 +65,11 @@ MODELS = {
     },
 }
 
-SUPPORTED_MODELS = MODELS.keys()
+MODEL_ALIASES = {
+    'EVW3200-Wifi': 'EVW320B'
+}
+
+SUPPORTED_MODELS = list(MODELS.keys()) + list(MODEL_ALIASES.keys())
 
 
 class Ubee:
@@ -79,6 +83,9 @@ class Ubee:
 
         if model == 'detect':
             model = self.detect_model()
+
+        if model in MODEL_ALIASES:
+            model = MODEL_ALIASES.get(model)
 
         if model not in MODELS:
             raise LookupError('Unknown model')
