@@ -1,6 +1,9 @@
 # PyUbee CHANGELOG
 This file is used to list changes made in each version of the PyUbee.
 
+## 0.5 (March 27 2019)
+* Add model aliases ([@mzdrale](https://github.com/mzdrale) - [#7](https://github.com/mzdrale/pyubee/pull/7))
+
 ## 0.4 (March 26 2019)
 * Detect Ubee model automatically ([@mzdrale](https://github.com/mzdrale) - [#5](https://github.com/mzdrale/pyubee/pull/5))
 * Move requests GET/POST to own method ([@StevenLooman](https://github.com/StevenLooman))
