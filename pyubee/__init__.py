@@ -83,12 +83,15 @@ class Ubee:
 
         if model == 'detect':
             model = self.detect_model()
+            _LOGGER.debug('Detected model: %s', model)
 
         if model in MODEL_ALIASES:
             model = MODEL_ALIASES.get(model)
 
         if model not in MODELS:
             raise LookupError('Unknown model')
+
+        _LOGGER.debug('Using model: %s', model)
 
         self.model = model
         self._model_info = MODELS[model]
@@ -101,11 +104,13 @@ class Ubee:
     def _get(self, url):
         """Do a HTTP GET."""
         # pylint: disable=no-self-use
+        _LOGGER.debug('HTTP GET: %s', url)
         return requests.get(url, timeout=4)
 
     def _post(self, url, data):
         """Do a HTTP POST."""
         # pylint: disable=no-self-use
+        _LOGGER.debug('HTTP POST: %s, data: %s', url, data)
         return requests.post(url, data=data, timeout=4)
 
     def detect_model(self):
