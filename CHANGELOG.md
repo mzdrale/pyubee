@@ -1,6 +1,9 @@
 # PyUbee CHANGELOG
 This file is used to list changes made in each version of the PyUbee.
 
+## 0.6 (unreleased)
+* Fix detection of active session for EVW320B ([@StevenLooman](http://github.com/StevenLooman))
+
 ## 0.5 (March 27 2019)
 * Add model aliases ([@mzdrale](https://github.com/mzdrale) - [#7](https://github.com/mzdrale/pyubee/pull/7))
 

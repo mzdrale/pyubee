@@ -44,7 +44,7 @@ MODELS = {
         'url_logout': '/logout.asp',
         'url_connected_devices_lan': '/RgDhcp.asp',
         'url_connected_devices_wifi': '/wlanAccess.asp',
-        'regex_login': re.compile(r'<title>Residential Gateway Login</title>'),
+        'regex_login': re.compile(r'name="loginUsername"'),
         'regex_wifi_devices': re.compile(
             r'<tr bgcolor=#[0-9a-fA-F]+>'
             r'<td>([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:'  # mac address
