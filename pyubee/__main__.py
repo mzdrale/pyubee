@@ -1,9 +1,15 @@
 """Run PyUbee from the command-line."""
 import argparse
+import logging
 import sys
 
 from pyubee import SUPPORTED_MODELS
 from pyubee import Ubee
+
+
+logging.basicConfig()
+_LOGGER = logging.getLogger('pyubee')
+_LOGGER.setLevel(logging.ERROR)
 
 
 def main():
@@ -14,7 +20,12 @@ def main():
     parser.add_argument('password', help='Password')
     parser.add_argument('-m', '--model', default="detect",
                         help='Model, supported models: ' + ', '.join(SUPPORTED_MODELS))
+    parser.add_argument('-d', '--debug', action='store_true',
+                        help='Enable debug-logging')
     args = parser.parse_args()
+
+    if args.debug:
+        _LOGGER.setLevel(logging.DEBUG)
 
     ubee = Ubee(host=args.host,
                 username=args.username,

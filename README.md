@@ -33,7 +33,8 @@ ubee.logout()
 CLI
 ---
 
-A simple command line interface is available to query the router. The cli takes `host`, `username`, and `password` as mandatory arguments. The optional argument model can be used to specify the model of your routers. If model is not specified, this tool will try to detect it automatically.
+A simple command line interface is available to query the router. The cli takes `host`, `username`, and `password` as mandatory arguments. The optional argument `model` can be used to specify the model of your router. If model is not specified, this tool will try to detect it automatically.
+
 ```
 $ pyubee --help
 usage: pyubee [-h] [--model MODEL] host username password
@@ -93,6 +94,7 @@ Supported routers
 -----------------
 This library was written for and tested with:
 
+* Ambit EVW320B
 * Ubee EVW32C-0N
 * Ubee EVW3200-Wifi
-* Ambit EVW320B
+* Ubee EVW3226 (UPC)
