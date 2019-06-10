@@ -168,6 +168,22 @@ MODELS = {
         ),
         'authenticator': Evw3226Authenticator
     },
+    'EVW321B': {
+        'url_session_active': '/HomePageMR4.asp',
+        'url_login': '/goform/loginMR4',
+        'url_logout': '/logout.asp',
+        # includes all devices, also WiFi
+        'url_connected_devices_lan': '/ConnectedDevicesMR4.asp',
+        # there is no separate page with WiFi devices
+        'url_connected_devices_wifi': None,
+        'regex_login': re.compile(r'<table class="upc_loginform">'),
+        'regex_wifi_devices': None,
+        'regex_lan_devices': re.compile(
+            r'<td id="MACAddr">([0-9a-fA-F:]{17})</td>'  # mac address
+            r'<td id="IPAddr">(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
+        ),
+        'authenticator': DefaultAuthenticator
+    },
 }
 
 MODEL_ALIASES = {
