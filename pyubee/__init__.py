@@ -179,7 +179,8 @@ MODELS = {
         'regex_login': re.compile(r'name="loginUsername"'),
         'regex_wifi_devices': None,
         'regex_lan_devices': re.compile(
-            r'<td id="MACAddr">([0-9a-fA-F:]{17})</td>'  # mac address
+            r'<td id="MACAddr">([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:'  # mac address
+            r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2})</td>'  # mac address, cont'd
             r'<td id="IPAddr">(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
         ),
         'authenticator': DefaultAuthenticator
