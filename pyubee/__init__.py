@@ -151,23 +151,6 @@ MODELS = {
         ),
         'authenticator': DefaultAuthenticator
     },
-    'EVW3226@UPC': {
-        'url_session_active': '/cgi-bin/setup.cgi?gonext=login',
-        'url_login': '/cgi-bin/setup.cgi',
-        'url_logout': '/cgi-bin/setup.cgi?gonext=main2___20',
-        # includes all devices, also WiFi
-        'url_connected_devices_lan': '/cgi-bin/setup.cgi?gonext=RgBasicDHCPClientDevices',
-        # there is no separate page with WiFi devices
-        'url_connected_devices_wifi': None,
-        'regex_login': re.compile(r'<div class="upc_loginform">'),
-        'regex_wifi_devices': None,
-        'regex_lan_devices': re.compile(
-            r'<tr>\n    \t\t\t\t\t\t'
-            r'<td>([0-9a-fA-F:]{17})</td>\n    \t\t\t\t\t\t'  # mac address
-            r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
-        ),
-        'authenticator': Evw3226Authenticator
-    },
     'EVW321B': {
         'url_session_active': '/HomePageMR4.asp',
         'url_login': '/goform/loginMR4',
@@ -184,6 +167,23 @@ MODELS = {
             r'<td id="IPAddr">(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
         ),
         'authenticator': DefaultAuthenticator
+    },
+    'EVW3226@UPC': {
+        'url_session_active': '/cgi-bin/setup.cgi?gonext=login',
+        'url_login': '/cgi-bin/setup.cgi',
+        'url_logout': '/cgi-bin/setup.cgi?gonext=main2___20',
+        # includes all devices, also WiFi
+        'url_connected_devices_lan': '/cgi-bin/setup.cgi?gonext=RgBasicDHCPClientDevices',
+        # there is no separate page with WiFi devices
+        'url_connected_devices_wifi': None,
+        'regex_login': re.compile(r'<div class="upc_loginform">'),
+        'regex_wifi_devices': None,
+        'regex_lan_devices': re.compile(
+            r'<tr>\n    \t\t\t\t\t\t'
+            r'<td>([0-9a-fA-F:]{17})</td>\n    \t\t\t\t\t\t'  # mac address
+            r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
+        ),
+        'authenticator': Evw3226Authenticator
     },
 }
 
