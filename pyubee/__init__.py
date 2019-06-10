@@ -176,7 +176,7 @@ MODELS = {
         'url_connected_devices_lan': '/ConnectedDevicesMR4.asp',
         # there is no separate page with WiFi devices
         'url_connected_devices_wifi': None,
-        'regex_login': re.compile(r'<table class="upc_loginform">'),
+        'regex_login': re.compile(r'name="loginUsername"'),
         'regex_wifi_devices': None,
         'regex_lan_devices': re.compile(
             r'<td id="MACAddr">([0-9a-fA-F:]{17})</td>'  # mac address
