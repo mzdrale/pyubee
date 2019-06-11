@@ -95,6 +95,7 @@ Supported routers
 This library was written for and tested with:
 
 * Ambit EVW320B
+* Ambit EVW321B
 * Ubee EVW32C-0N
 * Ubee EVW3200-Wifi
 * Ubee EVW3226 (UPC)
