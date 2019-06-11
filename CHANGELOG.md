@@ -1,7 +1,10 @@
 # PyUbee CHANGELOG
 This file is used to list changes made in each version of the PyUbee.
 
-## 0.6 (unreleased)
+## 0.7
+* Support for EVW321B (Ziggo) ([@karrukola](Filippo Carra))
+
+## 0.6
 * Fix detection of active session for EVW320B ([@StevenLooman](http://github.com/StevenLooman))
 * Add --debug option to cli ([@StevenLooman](http://github.com/StevenLooman))
 * EVW3226 @ UPC support ([@carbolymer](https://github.com/carbolymer) - [#8](https://github.com/mzdrale/pyubee/pull/8))
