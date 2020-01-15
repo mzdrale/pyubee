@@ -1,6 +1,9 @@
 # PyUbee CHANGELOG
 This file is used to list changes made in each version of the PyUbee.
 
+## 0.8
+* EVW32C-0N regex fix ([@mzdrale](http://github.com/mzdrale) - [#15](https://github.com/mzdrale/pyubee/pull/15))
+
 ## 0.7
 * Support for EVW321B (Ziggo) ([@karrukola](Filippo Carra))
 
