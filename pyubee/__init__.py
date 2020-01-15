@@ -112,7 +112,7 @@ MODELS = {
             r'<td>\d+</td>'  # age
             r'<td>.+</td>'  # rssi
             r'<td>\d+\.\d+\.\d+\.\d+</td>'  # ip address
-            r'<td>(.+)</td>'  # hostname
+            r'<td>(.*)</td>'  # hostname
             r'<td>.+</td>'  # mode
             r'<td>\d+</td>'  # speed
             r'</tr>'
