@@ -187,7 +187,7 @@ MODELS = {
     },
     'DVW32CB': {
         'url_session_active': '/main.asp',
-        'url_login': 'RgSwInfo.asp',
+        'url_login': '/RgSwInfo.asp',
         'url_logout': '/logout.asp',
         # includes all devices, also WiFi
         'url_connected_devices_lan': '/RgDhcp.asp',
