@@ -185,6 +185,33 @@ MODELS = {
         ),
         'authenticator': Evw3226Authenticator
     },
+    'DVW32CB': {
+        'url_session_active': '/main.asp',
+        'url_login': 'RgSwInfo.asp',
+        'url_logout': '/logout.asp',
+        # includes all devices, also WiFi
+        'url_connected_devices_lan': '/RgDhcp.asp',
+        'url_connected_devices_wifi': '/wlanAccess.asp',
+        'regex_login': re.compile(r'name="loginUsername"'),
+        'regex_wifi_devices': re.compile(
+            r'<tr bgcolor=#[0-9a-fA-F]+>'
+            r'<td>([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:'  # mac address
+            r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2})</td>'  # mac address, cont'd
+            r'<td>\d+</td>'  # age
+            r'<td>.+</td>'  # rssi
+            r'<td>.*</td>'  # ip address
+            r'<td>(.+)?</td>'  # hostname
+            r'<td>.+</td>'  # mode
+            r'<td>\d+</td>'  # speed
+            r'</tr>'
+        ),
+        'regex_lan_devices': re.compile(
+            r'<tr>\n    \t\t\t\t\t\t'
+            r'<td>([0-9a-fA-F:]{17})</td>\n    \t\t\t\t\t\t'  # mac address
+            r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
+        ),
+        'authenticator': DefaultAuthenticator
+        },
 }
 
 MODEL_ALIASES = {
