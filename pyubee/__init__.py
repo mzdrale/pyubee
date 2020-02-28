@@ -198,10 +198,10 @@ MODELS = {
             r'<td>([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:'  # mac address
             r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2})</td>'  # mac address, cont'd
             r'<td>\d+</td>'  # age
-            r'<td>.+</td>'  # rssi
+            r'<td>.*</td>'  # rssi
             r'<td>.*</td>'  # ip address
-            r'<td>(.+)?</td>'  # hostname
-            r'<td>.+</td>'  # mode
+            r'<td>(.*)?</td>'  # hostname
+            r'<td>.*</td>'  # mode
             r'<td>\d+</td>'  # speed
             r'</tr>'
         ),
