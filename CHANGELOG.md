@@ -1,13 +1,16 @@
 # PyUbee CHANGELOG
 This file is used to list changes made in each version of the PyUbee.
 
-## 0.8
+## 0.9 (March 2 2020)
+* Add support for Ubee Router DVW32CB ([@seanvictory](https://github.com/seanvictory) - [#17](https://github.com/mzdrale/pyubee/pull/17))
+
+## 0.8 (January 15 2020)
 * EVW32C-0N regex fix ([@mzdrale](http://github.com/mzdrale) - [#15](https://github.com/mzdrale/pyubee/pull/15))
 
-## 0.7
+## 0.7 (Jun 11 2019)
 * Support for EVW321B (Ziggo) ([@karrukola](Filippo Carra))
 
-## 0.6
+## 0.6 (April 18 2019)
 * Fix detection of active session for EVW320B ([@StevenLooman](http://github.com/StevenLooman))
 * Add --debug option to cli ([@StevenLooman](http://github.com/StevenLooman))
 * EVW3226 @ UPC support ([@carbolymer](https://github.com/carbolymer) - [#8](https://github.com/mzdrale/pyubee/pull/8))
