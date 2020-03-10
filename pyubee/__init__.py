@@ -211,7 +211,28 @@ MODELS = {
             r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
         ),
         'authenticator': DefaultAuthenticator
-        },
+    },
+    'DDW36C': {
+        'url_session_active': '/main.asp',
+        'url_login': '/RgSwInfo.asp',
+        'url_logout': '/logout.asp',
+        'url_connected_devices_lan': '/RgDhcp.asp',
+        'url_connected_devices_wifi': '/wlanAccess.asp',
+        'regex_login': re.compile(r'name="loginUsername"'),
+        'regex_wifi_devices': re.compile(
+            r'<tr bgcolor=#[0-9a-fA-F]+>'
+            r'<td>([0-9a-fA-F:]{17})</td>'  # mac address
+            r'<td>.*</td>'  # age
+            r'<td>.*</td>'  # rssi
+            r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
+        ),
+        'regex_lan_devices': re.compile(
+            r'<tr bgcolor=#[0-9a-fA-F]+>'
+            r'<td>([0-9a-fA-F:]{17})</td>'  # mac address
+            r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
+        ),
+        'authenticator': DefaultAuthenticator
+    },
 }
 
 MODEL_ALIASES = {
