@@ -9,6 +9,7 @@ from requests.exceptions import RequestException
 
 
 _LOGGER = logging.getLogger(__name__)
+_LOGGER_TRAFFIC = logging.getLogger(__name__ + '.traffic')
 
 
 class Authenticator:
@@ -281,7 +282,21 @@ class Ubee:
         headers = {'Host': self.host}
         if referer is not None:
             headers['Referer'] = referer
-        return requests.get(url, timeout=4, headers=headers)
+
+        _LOGGER_TRAFFIC.debug('Sending request:')
+        _LOGGER_TRAFFIC.debug('  HTTP GET %s', url)
+        for key, value in headers.items():
+            _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
+
+        response = requests.get(url, timeout=4, headers=headers)
+
+        _LOGGER_TRAFFIC.debug('Received response:')
+        _LOGGER_TRAFFIC.debug('  Status: %s, Reason: %s', response.status_code, response.reason)
+        for key, value in response.headers.items():
+            _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
+        _LOGGER_TRAFFIC.debug('  Data: %s', repr(response.text))
+
+        return response
 
     def _post(self, url, data, referer=None):
         """Do a HTTP POST."""
@@ -290,7 +305,22 @@ class Ubee:
         headers = {'Host': self.host}
         if referer is not None:
             headers['Referer'] = referer
-        return requests.post(url, data=data, timeout=4, headers=headers)
+
+        _LOGGER_TRAFFIC.debug('Sending request:')
+        _LOGGER_TRAFFIC.debug('  HTTP POST %s', url)
+        for key, value in headers.items():
+            _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
+        _LOGGER_TRAFFIC.debug('  Data: %s', repr(data))
+
+        response = requests.post(url, data=data, timeout=4, headers=headers)
+
+        _LOGGER_TRAFFIC.debug('Received response:')
+        _LOGGER_TRAFFIC.debug('  Status: %s, Reason: %s', response.status_code, response.reason)
+        for key, value in response.headers.items():
+            _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
+        _LOGGER_TRAFFIC.debug('  Data: %s', repr(response.text))
+
+        return response
 
     def detect_model(self):
         """Autodetect Ubee model."""
