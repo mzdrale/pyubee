@@ -254,7 +254,6 @@ class Ubee:
 
         if model == 'detect':
             model = self.detect_model()
-            _LOGGER.debug('Detected model: %s', model)
 
         if model in MODEL_ALIASES:
             model = MODEL_ALIASES.get(model)
@@ -289,6 +288,7 @@ class Ubee:
             _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
 
         response = requests.get(url, timeout=4, headers=headers)
+        _LOGGER.debug('Response status code: %s', response.status_code)
 
         _LOGGER_TRAFFIC.debug('Received response:')
         _LOGGER_TRAFFIC.debug('  Status: %s, Reason: %s', response.status_code, response.reason)
@@ -301,7 +301,7 @@ class Ubee:
     def _post(self, url, data, referer=None):
         """Do a HTTP POST."""
         # pylint: disable=no-self-use
-        _LOGGER.debug('HTTP POST: %s, data: %s', url, data)
+        _LOGGER.debug('HTTP POST: %s, data: %s', url, repr(data))
         headers = {'Host': self.host}
         if referer is not None:
             headers['Referer'] = referer
@@ -313,6 +313,7 @@ class Ubee:
         _LOGGER_TRAFFIC.debug('  Data: %s', repr(data))
 
         response = requests.post(url, data=data, timeout=4, headers=headers)
+        _LOGGER.debug('Response status code: %s', response.status_code)
 
         _LOGGER_TRAFFIC.debug('Received response:')
         _LOGGER_TRAFFIC.debug('  Status: %s, Reason: %s', response.status_code, response.reason)
@@ -324,6 +325,8 @@ class Ubee:
 
     def detect_model(self):
         """Autodetect Ubee model."""
+        _LOGGER.debug('Detecting model')
+
         url = self._base_url + "/RootDevice.xml"
         try:
             response = self._get(url)
@@ -335,12 +338,16 @@ class Ubee:
         entries = MODEL_REGEX.findall(data)
 
         if entries:
+            _LOGGER.debug('Detected model: %s', entries[1])
             return entries[1]
 
+        _LOGGER.debug('Could not detect model')
         return "Unknown"
 
     def session_active(self):
         """Check if session is active."""
+        _LOGGER.debug('Checking if session is active')
+
         url = self._base_url + self._model_info['url_session_active']
         try:
             response = self._get(url)
@@ -350,13 +357,16 @@ class Ubee:
 
         login_phrase = self._model_info['regex_login'].findall(response.text)
         if login_phrase:
-            _LOGGER.debug('found login page, session not active')
+            _LOGGER.debug('Found login page, session not active')
             return False
 
+        _LOGGER.debug('Did not find login page, session active')
         return True
 
     def login(self):
         """Login to Ubee Admin interface."""
+        _LOGGER.debug('Logging in')
+
         url = self._base_url + self._model_info['url_login']
 
         try:
@@ -370,6 +380,8 @@ class Ubee:
 
     def logout(self):
         """Logout from Admin interface."""
+        _LOGGER.debug('Logging out')
+
         url = self._base_url + self._model_info['url_logout']
         try:
             response = self._get(url)
@@ -378,8 +390,10 @@ class Ubee:
             return False
 
         if response.status_code == 200:
+            _LOGGER.debug('Logged out')
             return True
 
+        _LOGGER.debug('Unable to log out')
         return False
 
     def get_connected_devices(self):
@@ -394,12 +408,14 @@ class Ubee:
 
     def get_connected_devices_lan(self):
         """Get list of connected devices via ethernet."""
+        _LOGGER.debug('Getting list of connected lan devices')
+
         url = self._base_url + self._model_info['url_connected_devices_lan']
         try:
             response = self._get(url)
         except RequestException as ex:
             _LOGGER.error("Connection to the router failed: %s", ex)
-            return []
+            return {}
 
         data = response.text
         entries = self._model_info['regex_lan_devices'].findall(data)
@@ -410,6 +426,8 @@ class Ubee:
 
     def get_connected_devices_wifi(self):
         """Get list of connected devices via wifi."""
+        _LOGGER.debug('Getting list of connected wifi devices')
+
         wifi_regexp = self._model_info['regex_wifi_devices']
         if wifi_regexp is None:
             _LOGGER.debug('No WiFi lookup support')
@@ -420,7 +438,7 @@ class Ubee:
             response = self._get(url)
         except RequestException as ex:
             _LOGGER.error("Connection to the router failed: %s", ex)
-            return []
+            return {}
 
         data = response.text
         entries = wifi_regexp.findall(data)
