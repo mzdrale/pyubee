@@ -2,13 +2,17 @@
 
 import logging
 import re
-
 from abc import abstractmethod
+from base64 import b64encode
+
 import requests
 from requests.exceptions import RequestException
 
 
 _LOGGER = logging.getLogger(__name__)
+_LOGGER_TRAFFIC = logging.getLogger(__name__ + '.traffic')
+
+HTTP_REQUEST_TIMEOUT = 4  # seconds
 
 
 class Authenticator:
@@ -49,7 +53,12 @@ class Authenticator:
         referer_url = self.base_url + self.model_info['url_session_active']
         csrf_token = self._get_csrf_token()
         payload = self._build_login_payload(username, password, csrf_token)
-        self._post(url, payload, referer_url)
+        self._post(url, payload, referer=referer_url)
+
+    @property
+    def headers(self):
+        """Get authentication related headers, used for every request."""
+        return {}
 
 
 class DefaultAuthenticator(Authenticator):
@@ -93,6 +102,39 @@ class Evw3226Authenticator(Authenticator):
                   referer=self.base_url + '/cgi-bin/setup.cgi')
         self._get(self.base_url + '/cgi-bin/setup.cgi?gonext=main2',
                   referer=self.base_url + '/main.htm')
+
+
+class BasicAccessAuthAuthenticator(Authenticator):
+    """Basic Auth authenticator."""
+
+    def __init__(self, base_url, model_info, http_get_handler, http_post_handler):
+        """Create authenticator."""
+        super().__init__(base_url, model_info, http_get_handler, http_post_handler)
+
+        self._username = None
+        self._password = None
+
+    def _build_login_payload(self, login, password, csrf_token=None):
+        return None
+
+    def authenticate(self, url, username, password):
+        """Store username/password for later use."""
+        # Store username/password.
+        self._username = username
+        self._password = password
+
+    @property
+    def headers(self):
+        """Get authentication related headers, used for every request."""
+        headers = {}
+
+        if self._username and self._password:
+            user_pass = bytes(self._username + ':' + self._password, "utf-8")
+            user_pass_b64 = b64encode(user_pass).decode('ascii')
+            authorization = 'Basic %s' % user_pass_b64
+            headers['authorization'] = authorization
+
+        return headers
 
 
 MODEL_REGEX = re.compile(r'<modelName>(.*)</modelName>')
@@ -162,8 +204,8 @@ MODELS = {
         'regex_login': re.compile(r'name="loginUsername"'),
         'regex_wifi_devices': None,
         'regex_lan_devices': re.compile(
-            r'<td id="MACAddr">([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:'  # mac address
-            r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2})</td>'  # mac address, cont'd
+            r'<td id="MACAddr">([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:'  # mac address
+            r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2})</td>'  # mac address, cont'd
             r'<td id="IPAddr">(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
         ),
         'authenticator': DefaultAuthenticator
@@ -211,7 +253,28 @@ MODELS = {
             r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
         ),
         'authenticator': DefaultAuthenticator
-        },
+    },
+    'DDW36C': {
+        'url_session_active': '/RgSwInfo.asp',
+        'url_login': '/RgSwInfo.asp',
+        'url_logout': '/logout.asp',
+        'url_connected_devices_lan': '/RgDhcp.asp',
+        'url_connected_devices_wifi': '/wlanAccess.asp',
+        'regex_login': re.compile(r'name="loginUsername"'),
+        'regex_wifi_devices': re.compile(
+            r'<tr bgcolor=#[0-9a-fA-F]+>'
+            r'<td>([0-9a-fA-F:]{17})</td>'  # mac address
+            r'<td>.*</td>'  # age
+            r'<td>.*</td>'  # rssi
+            r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
+        ),
+        'regex_lan_devices': re.compile(
+            r'<tr bgcolor=#[0-9a-fA-F]+>'
+            r'<td>([0-9a-fA-F:]{17})</td>'  # mac address
+            r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
+        ),
+        'authenticator': BasicAccessAuthAuthenticator
+    },
 }
 
 MODEL_ALIASES = {
@@ -232,7 +295,6 @@ class Ubee:
 
         if model == 'detect':
             model = self.detect_model()
-            _LOGGER.debug('Detected model: %s', model)
 
         if model in MODEL_ALIASES:
             model = MODEL_ALIASES.get(model)
@@ -240,8 +302,6 @@ class Ubee:
         if model not in MODELS:
             _LOGGER.info('pyubee supported models: %s', ', '.join(SUPPORTED_MODELS))
             raise LookupError('Unknown model: ' + model)
-
-        _LOGGER.debug('Using model: %s', model)
 
         self.model = model
         self._model_info = MODELS[model]
@@ -253,26 +313,75 @@ class Ubee:
         """Form base url."""
         return 'http://{}'.format(self.host)
 
-    def _get(self, url, referer=None):
+    def _get(self, url, **headers):
         """Do a HTTP GET."""
         # pylint: disable=no-self-use
         _LOGGER.debug('HTTP GET: %s', url)
-        headers = {'Host': self.host}
-        if referer is not None:
-            headers['Referer'] = referer
-        return requests.get(url, timeout=4, headers=headers)
+        req_headers = {'Host': self.host}
 
-    def _post(self, url, data, referer=None):
+        # Add custom headers.
+        for key, value in headers.items():
+            key_title = key.title()
+            req_headers[key_title] = value
+
+        # Add headers from authenticator.
+        for key, value in self._authenticator_headers.items():
+            key_title = key.title()
+            req_headers[key_title] = value
+
+        _LOGGER_TRAFFIC.debug('Sending request:')
+        _LOGGER_TRAFFIC.debug('  HTTP GET %s', url)
+        for key, value in req_headers.items():
+            _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
+
+        response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT, headers=req_headers)
+        _LOGGER.debug('Response status code: %s', response.status_code)
+
+        _LOGGER_TRAFFIC.debug('Received response:')
+        _LOGGER_TRAFFIC.debug('  Status: %s, Reason: %s', response.status_code, response.reason)
+        for key, value in response.headers.items():
+            _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
+        _LOGGER_TRAFFIC.debug('  Data: %s', repr(response.text))
+
+        return response
+
+    def _post(self, url, data, **headers):
         """Do a HTTP POST."""
         # pylint: disable=no-self-use
-        _LOGGER.debug('HTTP POST: %s, data: %s', url, data)
-        headers = {'Host': self.host}
-        if referer is not None:
-            headers['Referer'] = referer
-        return requests.post(url, data=data, timeout=4, headers=headers)
+        _LOGGER.debug('HTTP POST: %s, data: %s', url, repr(data))
+        req_headers = {'Host': self.host}
+
+        # Add custom headers.
+        for key, value in headers.items():
+            key_title = key.title()
+            req_headers[key_title] = value
+
+        # Add headers from authenticator.
+        for key, value in self._authenticator_headers.items():
+            key_title = key.title()
+            req_headers[key_title] = value
+
+        _LOGGER_TRAFFIC.debug('Sending request:')
+        _LOGGER_TRAFFIC.debug('  HTTP POST %s', url)
+        for key, value in req_headers.items():
+            _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
+        _LOGGER_TRAFFIC.debug('  Data: %s', repr(data))
+
+        response = requests.post(url, data=data, timeout=HTTP_REQUEST_TIMEOUT, headers=req_headers)
+        _LOGGER.debug('Response status code: %s', response.status_code)
+
+        _LOGGER_TRAFFIC.debug('Received response:')
+        _LOGGER_TRAFFIC.debug('  Status: %s, Reason: %s', response.status_code, response.reason)
+        for key, value in response.headers.items():
+            _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
+        _LOGGER_TRAFFIC.debug('  Data: %s', repr(response.text))
+
+        return response
 
     def detect_model(self):
         """Autodetect Ubee model."""
+        _LOGGER.debug('Detecting model')
+
         url = self._base_url + "/RootDevice.xml"
         try:
             response = self._get(url)
@@ -284,28 +393,38 @@ class Ubee:
         entries = MODEL_REGEX.findall(data)
 
         if entries:
+            _LOGGER.debug('Detected model: %s', entries[1])
             return entries[1]
 
+        _LOGGER.debug('Could not detect model')
         return "Unknown"
 
     def session_active(self):
         """Check if session is active."""
+        _LOGGER.debug('Checking if session is active')
+
         url = self._base_url + self._model_info['url_session_active']
         try:
             response = self._get(url)
+
+            if response.status_code == 401:
+                return False
         except RequestException as ex:
             _LOGGER.error("Connection to the router failed: %s", ex)
             return False
 
         login_phrase = self._model_info['regex_login'].findall(response.text)
         if login_phrase:
-            _LOGGER.debug('found login page, session not active')
+            _LOGGER.debug('Found login page, session not active')
             return False
 
+        _LOGGER.debug('Did not find login page, session active')
         return True
 
     def login(self):
         """Login to Ubee Admin interface."""
+        _LOGGER.debug('Logging in')
+
         url = self._base_url + self._model_info['url_login']
 
         try:
@@ -319,6 +438,8 @@ class Ubee:
 
     def logout(self):
         """Logout from Admin interface."""
+        _LOGGER.debug('Logging out')
+
         url = self._base_url + self._model_info['url_logout']
         try:
             response = self._get(url)
@@ -327,8 +448,10 @@ class Ubee:
             return False
 
         if response.status_code == 200:
+            _LOGGER.debug('Logged out')
             return True
 
+        _LOGGER.debug('Unable to log out')
         return False
 
     def get_connected_devices(self):
@@ -343,12 +466,14 @@ class Ubee:
 
     def get_connected_devices_lan(self):
         """Get list of connected devices via ethernet."""
+        _LOGGER.debug('Getting list of connected lan devices')
+
         url = self._base_url + self._model_info['url_connected_devices_lan']
         try:
             response = self._get(url)
         except RequestException as ex:
             _LOGGER.error("Connection to the router failed: %s", ex)
-            return []
+            return {}
 
         data = response.text
         entries = self._model_info['regex_lan_devices'].findall(data)
@@ -359,6 +484,8 @@ class Ubee:
 
     def get_connected_devices_wifi(self):
         """Get list of connected devices via wifi."""
+        _LOGGER.debug('Getting list of connected wifi devices')
+
         wifi_regexp = self._model_info['regex_wifi_devices']
         if wifi_regexp is None:
             _LOGGER.debug('No WiFi lookup support')
@@ -369,7 +496,7 @@ class Ubee:
             response = self._get(url)
         except RequestException as ex:
             _LOGGER.error("Connection to the router failed: %s", ex)
-            return []
+            return {}
 
         data = response.text
         entries = wifi_regexp.findall(data)
@@ -384,3 +511,12 @@ class Ubee:
         # remove all ':' and '-'
         bare = address.upper().replace(':', '').replace('-', '')
         return ':'.join(bare[i:i + 2] for i in range(0, 12, 2))
+
+    @property
+    def _authenticator_headers(self):
+        """Get headers from authenticator."""
+        # work around no authenticator set when detecting model
+        if not hasattr(self, 'authenticator'):
+            return {}
+
+        return self.authenticator.headers
