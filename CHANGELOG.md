@@ -1,6 +1,9 @@
 # PyUbee CHANGELOG
 This file is used to list changes made in each version of the PyUbee.
 
+## 0.10 (unreleased)
+* Add support for Ubee Router DDW36C [#19](https://github.com/mzdrale/pyubee/pull/19))
+
 ## 0.9 (March 2 2020)
 * Add support for Ubee Router DVW32CB ([@seanvictory](https://github.com/seanvictory) - [#17](https://github.com/mzdrale/pyubee/pull/17))
 
