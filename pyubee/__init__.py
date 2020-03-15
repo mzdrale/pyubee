@@ -126,10 +126,15 @@ class BasicAccessAuthAuthenticator(Authenticator):
     @property
     def headers(self):
         """Get authentication related headers, used for every request."""
-        user_pass = bytes(self._username + ':' + self._password, "utf-8")
-        user_pass_b64 = b64encode(user_pass)
-        authorization = 'Basic %s' % user_pass_b64
-        return {'authorization': authorization}
+        headers = {}
+
+        if self._username and self._password:
+            user_pass = bytes(self._username + ':' + self._password, "utf-8")
+            user_pass_b64 = b64encode(user_pass)
+            authorization = 'Basic %s' % user_pass_b64
+            headers['authorization'] = authorization
+
+        return headers
 
 
 MODEL_REGEX = re.compile(r'<modelName>(.*)</modelName>')
