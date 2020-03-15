@@ -130,7 +130,7 @@ class BasicAccessAuthAuthenticator(Authenticator):
 
         if self._username and self._password:
             user_pass = bytes(self._username + ':' + self._password, "utf-8")
-            user_pass_b64 = b64encode(user_pass)
+            user_pass_b64 = b64encode(user_pass).decode('ascii')
             authorization = 'Basic %s' % user_pass_b64
             headers['authorization'] = authorization
 
