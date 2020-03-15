@@ -2,14 +2,17 @@
 
 import logging
 import re
-
 from abc import abstractmethod
+from base64 import b64encode
+
 import requests
 from requests.exceptions import RequestException
 
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_TRAFFIC = logging.getLogger(__name__ + '.traffic')
+
+HTTP_REQUEST_TIMEOUT = 4  # seconds
 
 
 class Authenticator:
@@ -50,7 +53,12 @@ class Authenticator:
         referer_url = self.base_url + self.model_info['url_session_active']
         csrf_token = self._get_csrf_token()
         payload = self._build_login_payload(username, password, csrf_token)
-        self._post(url, payload, referer_url)
+        self._post(url, payload, referer=referer_url)
+
+    @property
+    def headers(self):
+        """Get authentication related headers, used for every request."""
+        return {}
 
 
 class DefaultAuthenticator(Authenticator):
@@ -94,6 +102,34 @@ class Evw3226Authenticator(Authenticator):
                   referer=self.base_url + '/cgi-bin/setup.cgi')
         self._get(self.base_url + '/cgi-bin/setup.cgi?gonext=main2',
                   referer=self.base_url + '/main.htm')
+
+
+class BasicAccessAuthAuthenticator(Authenticator):
+    """Basic Auth authenticator."""
+
+    def __init__(self, base_url, model_info, http_get_handler, http_post_handler):
+        """Create authenticator."""
+        super().__init__(base_url, model_info, http_get_handler, http_post_handler)
+
+        self._username = None
+        self._password = None
+
+    def _build_login_payload(self, login, password, csrf_token=None):
+        return None
+
+    def authenticate(self, url, username, password):
+        """Store username/password for later use."""
+        # Store username/password.
+        self._username = username
+        self._password = password
+
+    @property
+    def headers(self):
+        """Get authentication related headers, used for every request."""
+        user_pass = bytes(self._username + ':' + self._password, "utf-8")
+        user_pass_b64 = b64encode(user_pass)
+        authorization = 'Basic %s' % user_pass_b64
+        return {'authorization': authorization}
 
 
 MODEL_REGEX = re.compile(r'<modelName>(.*)</modelName>')
@@ -163,8 +199,8 @@ MODELS = {
         'regex_login': re.compile(r'name="loginUsername"'),
         'regex_wifi_devices': None,
         'regex_lan_devices': re.compile(
-            r'<td id="MACAddr">([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:'  # mac address
-            r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2})</td>'  # mac address, cont'd
+            r'<td id="MACAddr">([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:'  # mac address
+            r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2})</td>'  # mac address, cont'd
             r'<td id="IPAddr">(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
         ),
         'authenticator': DefaultAuthenticator
@@ -232,7 +268,7 @@ MODELS = {
             r'<td>([0-9a-fA-F:]{17})</td>'  # mac address
             r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
         ),
-        'authenticator': DefaultAuthenticator
+        'authenticator': BasicAccessAuthAuthenticator
     },
 }
 
@@ -262,8 +298,6 @@ class Ubee:
             _LOGGER.info('pyubee supported models: %s', ', '.join(SUPPORTED_MODELS))
             raise LookupError('Unknown model: ' + model)
 
-        _LOGGER.debug('Using model: %s', model)
-
         self.model = model
         self._model_info = MODELS[model]
         self.authenticator = self._model_info['authenticator'](
@@ -274,20 +308,28 @@ class Ubee:
         """Form base url."""
         return 'http://{}'.format(self.host)
 
-    def _get(self, url, referer=None):
+    def _get(self, url, **headers):
         """Do a HTTP GET."""
         # pylint: disable=no-self-use
         _LOGGER.debug('HTTP GET: %s', url)
-        headers = {'Host': self.host}
-        if referer is not None:
-            headers['Referer'] = referer
+        req_headers = {'Host': self.host}
+
+        # Add custom headers.
+        for key, value in headers.items():
+            key_title = key.title()
+            req_headers[key_title] = value
+
+        # Add headers from authenticator.
+        for key, value in self._authenticator_headers:
+            key_title = key.title()
+            req_headers[key_title] = value
 
         _LOGGER_TRAFFIC.debug('Sending request:')
         _LOGGER_TRAFFIC.debug('  HTTP GET %s', url)
-        for key, value in headers.items():
+        for key, value in req_headers.items():
             _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
 
-        response = requests.get(url, timeout=4, headers=headers)
+        response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT, headers=req_headers)
         _LOGGER.debug('Response status code: %s', response.status_code)
 
         _LOGGER_TRAFFIC.debug('Received response:')
@@ -298,21 +340,29 @@ class Ubee:
 
         return response
 
-    def _post(self, url, data, referer=None):
+    def _post(self, url, data, **headers):
         """Do a HTTP POST."""
         # pylint: disable=no-self-use
         _LOGGER.debug('HTTP POST: %s, data: %s', url, repr(data))
-        headers = {'Host': self.host}
-        if referer is not None:
-            headers['Referer'] = referer
+        req_headers = {'Host': self.host}
+
+        # Add custom headers.
+        for key, value in headers.items():
+            key_title = key.title()
+            req_headers[key_title] = value
+
+        # Add headers from authenticator.
+        for key, value in self._authenticator_headers:
+            key_title = key.title()
+            req_headers[key_title] = value
 
         _LOGGER_TRAFFIC.debug('Sending request:')
         _LOGGER_TRAFFIC.debug('  HTTP POST %s', url)
-        for key, value in headers.items():
+        for key, value in req_headers.items():
             _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
         _LOGGER_TRAFFIC.debug('  Data: %s', repr(data))
 
-        response = requests.post(url, data=data, timeout=4, headers=headers)
+        response = requests.post(url, data=data, timeout=HTTP_REQUEST_TIMEOUT, headers=req_headers)
         _LOGGER.debug('Response status code: %s', response.status_code)
 
         _LOGGER_TRAFFIC.debug('Received response:')
@@ -453,3 +503,12 @@ class Ubee:
         # remove all ':' and '-'
         bare = address.upper().replace(':', '').replace('-', '')
         return ':'.join(bare[i:i + 2] for i in range(0, 12, 2))
+
+    @property
+    def _authenticator_headers(self):
+        """Get headers from authenticator."""
+        # work around no authenticator set when detecting model
+        if not hasattr(self, 'authenticator'):
+            return {}
+
+        return self.authenticator.headers
