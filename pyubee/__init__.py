@@ -255,7 +255,7 @@ MODELS = {
         'authenticator': DefaultAuthenticator
     },
     'DDW36C': {
-        'url_session_active': '/main.asp',
+        'url_session_active': '/RgSwInfo.asp',
         'url_login': '/RgSwInfo.asp',
         'url_logout': '/logout.asp',
         'url_connected_devices_lan': '/RgDhcp.asp',
@@ -325,7 +325,7 @@ class Ubee:
             req_headers[key_title] = value
 
         # Add headers from authenticator.
-        for key, value in self._authenticator_headers:
+        for key, value in self._authenticator_headers.items():
             key_title = key.title()
             req_headers[key_title] = value
 
@@ -357,7 +357,7 @@ class Ubee:
             req_headers[key_title] = value
 
         # Add headers from authenticator.
-        for key, value in self._authenticator_headers:
+        for key, value in self._authenticator_headers.items():
             key_title = key.title()
             req_headers[key_title] = value
 
@@ -406,6 +406,9 @@ class Ubee:
         url = self._base_url + self._model_info['url_session_active']
         try:
             response = self._get(url)
+
+            if response.status_code == 401:
+                return False
         except RequestException as ex:
             _LOGGER.error("Connection to the router failed: %s", ex)
             return False
