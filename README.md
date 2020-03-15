@@ -1,4 +1,5 @@
 # PyUbee
+
 Python library for getting stats from [Ubee routers](http://www.ubeeinteractive.com/products).
 
 Installation
@@ -96,7 +97,8 @@ This library was written for and tested with:
 
 * Ambit EVW320B
 * Ambit EVW321B
+* Ubee DDW36C
+* Ubee DVW32CB
 * Ubee EVW32C-0N
 * Ubee EVW3200-Wifi
 * Ubee EVW3226 (UPC)
-* Ubee DVW32CB
