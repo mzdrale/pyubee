@@ -364,7 +364,7 @@ class Ubee:
         return 'http://{}'.format(self.host)
 
     def _get(self, url, **headers):
-        if isinstance(self.authenticator, DigestAuthAuthenticator):
+        if hasattr(self, 'authenticator') and isinstance(self.authenticator, DigestAuthAuthenticator):
             # We are using digest auth:
             response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT, auth=HTTPDigestAuth(self.username, self.password))
             return response
@@ -444,7 +444,7 @@ class Ubee:
             response = self._get(url)
         except RequestException as ex:
             _LOGGER.error("Connection to the router failed: %s", ex)
-            return "Unknown"
+            return "Unknown. Some models cannot be automatically detected at the moment."
 
         data = response.text
         entries = MODEL_REGEX.findall(data)
@@ -454,7 +454,7 @@ class Ubee:
             return entries[1]
 
         _LOGGER.debug('Could not detect model')
-        return "Unknown"
+        return "Unknown. Some models cannot be automatically detected at the moment."
 
     def session_active(self):
         """Check if session is active."""
