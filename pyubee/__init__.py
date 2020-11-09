@@ -314,8 +314,8 @@ MODELS = {
     },
     'UBC1303BA00': {
         'url_session_active': '/htdocs/cm_info_status.php',
-        'url_login': '/auth.php',
-        'url_logout': '/unauth.php',
+        'url_login': '/htdocs/cm_info_status.php',
+        'url_logout': '/htdocs/unauth.php',
         'url_connected_devices_lan': '/htdocs/rg_mgt_clientlist.php',
         # no URL for WiFi
         'url_connected_devices_wifi': None,
