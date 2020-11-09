@@ -102,3 +102,4 @@ This library was written for and tested with:
 * Ubee EVW32C-0N
 * Ubee EVW3200-Wifi
 * Ubee EVW3226 (UPC)
+* Ubee UBC1303BA00
