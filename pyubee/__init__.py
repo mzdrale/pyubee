@@ -5,8 +5,13 @@ import re
 from abc import abstractmethod
 from base64 import b64encode
 
+
 import requests
+from requests.auth import HTTPDigestAuth
 from requests.exceptions import RequestException
+
+import json
+
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -136,6 +141,32 @@ class BasicAccessAuthAuthenticator(Authenticator):
 
         return headers
 
+class DigestAuthAuthenticator(Authenticator):
+    """Digest Auth authenticator."""
+
+    def __init__(self, base_url, model_info, http_get_handler, http_post_handler):
+        """Create authenticator."""
+        super().__init__(base_url, model_info, http_get_handler, http_post_handler)
+
+        self._username = None
+        self._password = None
+
+    def _build_login_payload(self, login, password, csrf_token=None):
+        return None
+
+    def authenticate(self, url, username, password):
+        """Store username/password for later use."""
+        # Store username/password.
+        self._username = username
+        self._password = password
+
+    @property
+    def headers(self):
+        """Get authentication related headers, used for every request."""
+        headers = {}
+
+        return headers
+
 
 MODEL_REGEX = re.compile(r'<modelName>(.*)</modelName>')
 
@@ -165,7 +196,8 @@ MODELS = {
             r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2})</td>'  # mac address, cont'd
             r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
         ),
-        'authenticator': DefaultAuthenticator
+        'authenticator': DefaultAuthenticator,
+        'JSONList': False
     },
     'EVW320B': {
         'url_session_active': '/BasicStatus.asp',
@@ -191,7 +223,8 @@ MODELS = {
             r'<td>([0-9a-fA-F]{12})</td>'  # mac address
             r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
         ),
-        'authenticator': DefaultAuthenticator
+        'authenticator': DefaultAuthenticator,
+        'JSONList': False
     },
     'EVW321B': {
         'url_session_active': '/HomePageMR4.asp',
@@ -208,7 +241,8 @@ MODELS = {
             r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2})</td>'  # mac address, cont'd
             r'<td id="IPAddr">(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
         ),
-        'authenticator': DefaultAuthenticator
+        'authenticator': DefaultAuthenticator,
+        'JSONList': False
     },
     'EVW3226@UPC': {
         'url_session_active': '/cgi-bin/setup.cgi?gonext=login',
@@ -225,7 +259,8 @@ MODELS = {
             r'<td>([0-9a-fA-F:]{17})</td>\n    \t\t\t\t\t\t'  # mac address
             r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
         ),
-        'authenticator': Evw3226Authenticator
+        'authenticator': Evw3226Authenticator,
+        'JSONList': False
     },
     'DVW32CB': {
         'url_session_active': '/main.asp',
@@ -252,7 +287,8 @@ MODELS = {
             r'<td>([0-9a-fA-F:]{17})</td>\n    \t\t\t\t\t\t'  # mac address
             r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
         ),
-        'authenticator': DefaultAuthenticator
+        'authenticator': DefaultAuthenticator,
+        'JSONList': False
     },
     'DDW36C': {
         'url_session_active': '/RgSwInfo.asp',
@@ -273,7 +309,21 @@ MODELS = {
             r'<td>([0-9a-fA-F:]{17})</td>'  # mac address
             r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>'  # ip address
         ),
-        'authenticator': BasicAccessAuthAuthenticator
+        'authenticator': BasicAccessAuthAuthenticator,
+        'JSONList': False
+    },
+    'UBC1303BA00': {
+        'url_session_active': '/htdocs/cm_info_status.php',
+        'url_login': '/auth.php',
+        'url_logout': '/unauth.php',
+        'url_connected_devices_lan': '/htdocs/rg_mgt_clientlist.php',
+        # no URL for WiFi
+        'url_connected_devices_wifi': None,
+        'regex_login': re.compile(r'name="loginUsername"'),
+        'regex_wifi_devices': None,
+        'regex_lan_devices': r'\'{\"mgt_cpestatus_table\".*\'',
+        'authenticator': DigestAuthAuthenticator,
+        'JSONList': True
     },
 }
 
@@ -314,36 +364,43 @@ class Ubee:
         return 'http://{}'.format(self.host)
 
     def _get(self, url, **headers):
-        """Do a HTTP GET."""
-        # pylint: disable=no-self-use
-        _LOGGER.debug('HTTP GET: %s', url)
-        req_headers = {'Host': self.host}
+        if isinstance(self.authenticator, DigestAuthAuthenticator):
+            # We are using digest auth:
+            response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT, auth=HTTPDigestAuth(self.username, self.password))
+            return response
+        else:
+            # Use the rudimentary auth
+            """Do a HTTP GET."""
+            # pylint: disable=no-self-use
+            _LOGGER.debug('HTTP GET: %s', url)
+            req_headers = {'Host': self.host}
 
-        # Add custom headers.
-        for key, value in headers.items():
-            key_title = key.title()
-            req_headers[key_title] = value
+            # Add custom headers.
+            for key, value in headers.items():
+                key_title = key.title()
+                req_headers[key_title] = value
 
-        # Add headers from authenticator.
-        for key, value in self._authenticator_headers.items():
-            key_title = key.title()
-            req_headers[key_title] = value
+            # Add headers from authenticator.
+            for key, value in self._authenticator_headers.items():
+                key_title = key.title()
+                req_headers[key_title] = value
 
-        _LOGGER_TRAFFIC.debug('Sending request:')
-        _LOGGER_TRAFFIC.debug('  HTTP GET %s', url)
-        for key, value in req_headers.items():
-            _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
+            _LOGGER_TRAFFIC.debug('Sending request:')
+            _LOGGER_TRAFFIC.debug('  HTTP GET %s', url)
+            for key, value in req_headers.items():
+                _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
 
-        response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT, headers=req_headers)
-        _LOGGER.debug('Response status code: %s', response.status_code)
+            response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT, headers=req_headers)
+            _LOGGER.debug('Response status code: %s', response.status_code)
 
-        _LOGGER_TRAFFIC.debug('Received response:')
-        _LOGGER_TRAFFIC.debug('  Status: %s, Reason: %s', response.status_code, response.reason)
-        for key, value in response.headers.items():
-            _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
-        _LOGGER_TRAFFIC.debug('  Data: %s', repr(response.text))
+            _LOGGER_TRAFFIC.debug('Received response:')
+            _LOGGER_TRAFFIC.debug('  Status: %s, Reason: %s', response.status_code, response.reason)
+            for key, value in response.headers.items():
+                _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
+            _LOGGER_TRAFFIC.debug('  Data: %s', repr(response.text))
 
-        return response
+            return response
+
 
     def _post(self, url, data, **headers):
         """Do a HTTP POST."""
@@ -476,11 +533,22 @@ class Ubee:
             return {}
 
         data = response.text
-        entries = self._model_info['regex_lan_devices'].findall(data)
-        return {
-            self._format_mac_address(address): ip
-            for address, ip in entries
-        }
+        if self._model_info['JSONList']:
+            lan_regexp = self._model_info['regex_lan_devices']
+            #data = data[1:-1]
+            matches = re.search(lan_regexp, data, re.MULTILINE)
+            match = matches.group()[1:-1]
+            entries = json.loads(match)
+            return {
+                self._format_mac_address(entry["lan_dhcpinfo_mac_address"]): entry["lan_dhcpinfo_hostname"]
+                for entry in entries["lan_dhcpinfo_table"]
+            }
+        else:
+            entries = self._model_info['regex_lan_devices'].findall(data)
+            return {
+                self._format_mac_address(address): ip
+                for address, ip in entries
+            }
 
     def get_connected_devices_wifi(self):
         """Get list of connected devices via wifi."""
