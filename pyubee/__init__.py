@@ -519,7 +519,6 @@ class Ubee:
         _LOGGER.debug('WIFI devices: %s', wifi_devices)
         devices = lan_devices.copy()
         devices.update(wifi_devices)
-        print(devices)
         if self._model_info['JSONList']:
             devices = {key:val for key, val in devices.items() if val != "Unknown"}
         return devices
