@@ -5,13 +5,11 @@ import re
 from abc import abstractmethod
 from base64 import b64encode
 
-
 import requests
 from requests.auth import HTTPDigestAuth
 from requests.exceptions import RequestException
 
 import json
-
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -368,41 +366,45 @@ class Ubee:
             # We are using digest auth:
             response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT, auth=HTTPDigestAuth(self.username, self.password))
             return response
-        else:
-            # Use the rudimentary auth
-            """Do a HTTP GET."""
-            # pylint: disable=no-self-use
-            _LOGGER.debug('HTTP GET: %s', url)
-            req_headers = {'Host': self.host}
+        """Use the rudimentary auth""" 
+        """Do a HTTP GET."""
+        # pylint: disable=no-self-use
+        _LOGGER.debug('HTTP GET: %s', url)
+        req_headers = {'Host': self.host}
 
-            # Add custom headers.
-            for key, value in headers.items():
-                key_title = key.title()
-                req_headers[key_title] = value
+        # Add custom headers.
+        for key, value in headers.items():
+            key_title = key.title()
+            req_headers[key_title] = value
 
-            # Add headers from authenticator.
-            for key, value in self._authenticator_headers.items():
-                key_title = key.title()
-                req_headers[key_title] = value
+        # Add headers from authenticator.
+        for key, value in self._authenticator_headers.items():
+            key_title = key.title()
+            req_headers[key_title] = value
 
-            _LOGGER_TRAFFIC.debug('Sending request:')
-            _LOGGER_TRAFFIC.debug('  HTTP GET %s', url)
-            for key, value in req_headers.items():
-                _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
+        _LOGGER_TRAFFIC.debug('Sending request:')
+        _LOGGER_TRAFFIC.debug('  HTTP GET %s', url)
+        for key, value in req_headers.items():
+            _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
 
-            response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT, headers=req_headers)
-            _LOGGER.debug('Response status code: %s', response.status_code)
+        response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT, headers=req_headers)
+        _LOGGER.debug('Response status code: %s', response.status_code)
 
-            _LOGGER_TRAFFIC.debug('Received response:')
-            _LOGGER_TRAFFIC.debug('  Status: %s, Reason: %s', response.status_code, response.reason)
-            for key, value in response.headers.items():
-                _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
-            _LOGGER_TRAFFIC.debug('  Data: %s', repr(response.text))
+        _LOGGER_TRAFFIC.debug('Received response:')
+        _LOGGER_TRAFFIC.debug('  Status: %s, Reason: %s', response.status_code, response.reason)
+        for key, value in response.headers.items():
+            _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
+        _LOGGER_TRAFFIC.debug('  Data: %s', repr(response.text))
 
-            return response
+        return response
 
 
     def _post(self, url, data, **headers):
+        if hasattr(self, 'authenticator') and isinstance(self.authenticator, DigestAuthAuthenticator):
+            # We are using digest auth:
+            response = requests.post(url, data=data, timeout=HTTP_REQUEST_TIMEOUT, auth=HTTPDigestAuth(self.username, self.password))
+            return response
+        """Use the rudimentary auth""" 
         """Do a HTTP POST."""
         # pylint: disable=no-self-use
         _LOGGER.debug('HTTP POST: %s, data: %s', url, repr(data))
@@ -520,7 +522,7 @@ class Ubee:
         devices = lan_devices.copy()
         devices.update(wifi_devices)
         if self._model_info['JSONList']:
-            devices = {key:val for key, val in devices.items() if val != "Unknown"}
+            devices = {key:val for key, val in devices.items() if val.lower() != "unknown"}
         return devices
 
     def get_connected_devices_lan(self):
@@ -545,12 +547,11 @@ class Ubee:
                 self._format_mac_address(entry["lan_dhcpinfo_mac_address"]): entry["lan_dhcpinfo_hostname"]
                 for entry in entries["lan_dhcpinfo_table"]
             }
-        else:
-            entries = self._model_info['regex_lan_devices'].findall(data)
-            return {
-                self._format_mac_address(address): ip
-                for address, ip in entries
-            }
+        entries = self._model_info['regex_lan_devices'].findall(data)
+        return {
+            self._format_mac_address(address): ip
+            for address, ip in entries
+        }
 
     def get_connected_devices_wifi(self):
         """Get list of connected devices via wifi."""
