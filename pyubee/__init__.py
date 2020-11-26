@@ -362,12 +362,12 @@ class Ubee:
         return 'http://{}'.format(self.host)
 
     def _get(self, url, **headers):
+        """Do a HTTP GET."""
         if hasattr(self, 'authenticator') and isinstance(self.authenticator, DigestAuthAuthenticator):
             # We are using digest auth:
             response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT, auth=HTTPDigestAuth(self.username, self.password))
             return response
-        """Use the rudimentary auth""" 
-        """Do a HTTP GET."""
+        # Use the rudimentary auth
         # pylint: disable=no-self-use
         _LOGGER.debug('HTTP GET: %s', url)
         req_headers = {'Host': self.host}
@@ -404,7 +404,7 @@ class Ubee:
             # We are using digest auth:
             response = requests.post(url, data=data, timeout=HTTP_REQUEST_TIMEOUT, auth=HTTPDigestAuth(self.username, self.password))
             return response
-        """Use the rudimentary auth""" 
+        # Use the rudimentary auth
         """Do a HTTP POST."""
         # pylint: disable=no-self-use
         _LOGGER.debug('HTTP POST: %s, data: %s', url, repr(data))
