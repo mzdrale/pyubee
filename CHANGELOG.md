@@ -1,8 +1,11 @@
 # PyUbee CHANGELOG
 This file is used to list changes made in each version of the PyUbee.
 
+## 0.11 (November 27 2020)
+* Add support for UBC1303BA00 and other modems with JSON-formatted lists ([@jussihi](https://github.com/jussihi) - [#24](https://github.com/mzdrale/pyubee/pull/24))
+
 ## 0.10 (March 15 2020)
-* Add support for Ubee Router DDW36C [#19](https://github.com/mzdrale/pyubee/pull/19))
+* Add support for Ubee Router DDW36C ([@StevenLooman](https://github.com/StevenLooman) - [#19](https://github.com/mzdrale/pyubee/pull/19))
 
 ## 0.9 (March 2 2020)
 * Add support for Ubee Router DVW32CB ([@seanvictory](https://github.com/seanvictory) - [#17](https://github.com/mzdrale/pyubee/pull/17))
@@ -11,7 +14,7 @@ This file is used to list changes made in each version of the PyUbee.
 * EVW32C-0N regex fix ([@mzdrale](http://github.com/mzdrale) - [#15](https://github.com/mzdrale/pyubee/pull/15))
 
 ## 0.7 (Jun 11 2019)
-* Support for EVW321B (Ziggo) ([@karrukola](Filippo Carra))
+* Support for EVW321B (Ziggo) ([@karrukola](https://github.com/karrukola))
 
 ## 0.6 (April 18 2019)
 * Fix detection of active session for EVW320B ([@StevenLooman](http://github.com/StevenLooman))
