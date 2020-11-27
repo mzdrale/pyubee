@@ -2,13 +2,11 @@
 
 Python library for getting stats from [Ubee routers](http://www.ubeeinteractive.com/products).
 
-Installation
-------------
+## Installation
 
 You can install PyUbee from PyPi using `pip3 install pyubee`.
 
-Usage
------
+## Usage
 
 To use within your Python scripts:
 ```python
@@ -31,8 +29,7 @@ for x in devices:
 ubee.logout()
 ```
 
-CLI
----
+## CLI
 
 A simple command line interface is available to query the router. The cli takes `host`, `username`, and `password` as mandatory arguments. The optional argument `model` can be used to specify the model of your router. If model is not specified, this tool will try to detect it automatically.
 
@@ -56,8 +53,8 @@ AA:BB:CC:DD:EE:FF	192.168.1.10
 FF:EE:DD:CC:BB:AA	192.168.1.11
 ```
 
-Notice
-------
+## Notice
+
 Ubee devices contain vulnerability which allows user to access Admin Web UI without logging in if someone else is logged in from the same IP address. For example if you have Ubee router (e.g. 192.168.1.1) in your home installed from your ISP and you have your own router (192.168.1.2) connected to it and you are doing NAT (Network Address Translation) on your router, then Ubee router will see all connections from clients connected to your router coming from the same IP address 192.168.1.2. In that scenario if someone logs into Ubee router Admin Web UI (http://192.168.1.1/UbeeLanSetup.asp) from Computer A, then anyone from Computer B or Computer C can access http://192.168.1.1/UbeeLanSetup.asp or any other page on 192.168.1.1 without logging in.
 
 ```
@@ -87,12 +84,12 @@ Ubee devices contain vulnerability which allows user to access Admin Web UI with
 +-----------+  +-----------+  +-----------+
 ```
 
-You shoud have this in your mind if you have similar setup.
+You should have this in your mind if you have similar setup.
 
 Author of this package reported this issue to Vendor, even if [it's known for years](https://www.exploit-db.com/exploits/40156), but there is no response from Vendor and it looks like they are pushing firmware with the same vulnerability probably to all of their devices.
 
-Supported routers
------------------
+## Supported routers
+
 This library was written for and tested with:
 
 * Ambit EVW320B
