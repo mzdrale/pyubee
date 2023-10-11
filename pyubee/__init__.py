@@ -326,7 +326,8 @@ MODELS = {
 }
 
 MODEL_ALIASES = {
-    'EVW3200-Wifi': 'EVW320B'
+    'EVW3200-Wifi': 'EVW320B',
+    'EVW32C-0S': 'EVW32C-0N',
 }
 
 SUPPORTED_MODELS = list(MODELS.keys()) + list(MODEL_ALIASES.keys())
