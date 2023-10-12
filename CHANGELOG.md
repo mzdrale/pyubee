@@ -1,6 +1,9 @@
 # PyUbee CHANGELOG
 This file is used to list changes made in each version of the PyUbee.
 
+## 0.12 (TBD)
+* Add support for EVW32C-0S as alias for EVW32C-0N ([@sasa-buklijas](https://github.com/sasa-buklijas) - [#28](https://github.com/mzdrale/pyubee/pull/28))
+
 ## 0.11 (November 27 2020)
 * Add support for UBC1303BA00 and other modems with JSON-formatted lists ([@jussihi](https://github.com/jussihi) - [#24](https://github.com/mzdrale/pyubee/pull/24))
 
