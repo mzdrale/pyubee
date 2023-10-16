@@ -592,3 +592,20 @@ class Ubee:
             return {}
 
         return self.authenticator.headers
+    
+    def _reboot_device(self):
+        """Reboot device"""
+        # this will work only for EVW32C-0S, need it and tested it, so is correct
+        # can not test on other models, if done incorrectly could do factory reset of device
+        # that is why I have made this function internal(starting with _)
+
+        # this is very hack of code, but it is working
+        # if PR is accepted, than refactoring can be done
+        if self.model == 'EVW32C-0N': # same as EVW32C-0S
+            reboot_url = f'{self._base_url}/goform/UbeeConfiguration'
+            reboot_data = { 'ResetYes': '0x01', # 0x00 will do nothing
+                            # do not set ResetFactoryNo to 0x01, it will do factory reset 
+                            'ResetFactoryNo':'0x00',} 
+            self._post(reboot_url, reboot_data)
+        else:
+            _LOGGER.error("_reboot_device not available to mode: %s", self.model)
