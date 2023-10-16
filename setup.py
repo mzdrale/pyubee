@@ -6,6 +6,9 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="pyubee",
     version="0.12",
+    install_requires=[
+        "requests==2.31.0",
+    ],
     author="Miroslav Zdrale",
     author_email="mzdrale@gmail.com",
     description="Simple library for getting stats from Ubee routers.",
