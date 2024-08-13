@@ -5,9 +5,9 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pyubee",
-    version="0.13",
+    version="0.14",
     install_requires=[
-        "requests==2.31.0",
+        "requests==2.32.0",
     ],
     author="Miroslav Zdrale",
     author_email="mzdrale@gmail.com",

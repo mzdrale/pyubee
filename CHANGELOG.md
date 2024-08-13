@@ -1,6 +1,9 @@
 # PyUbee CHANGELOG
 This file is used to list changes made in each version of the PyUbee.
 
+## 0.14 (August 13 2024)
+* Bump requests to 2.32.0 ([@mzdrale](http://github.com/mzdrale))
+
 ## 0.13 (October 16 2023)
 * Add missing dependency for requests ([@sasa-buklijas](https://github.com/sasa-buklijas) - [#30](https://github.com/mzdrale/pyubee/pull/30))
 
