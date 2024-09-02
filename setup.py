@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pyubee",
-    version="0.14",
+    version="0.15",
     install_requires=[
         "requests==2.32.0",
     ],
