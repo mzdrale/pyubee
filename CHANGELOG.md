@@ -1,6 +1,9 @@
 # PyUbee CHANGELOG
 This file is used to list changes made in each version of the PyUbee.
 
+## 0.15 (September 2024)
+* Disable SSL verification ([@mzdrale](http://github.com/mzdrale))
+
 ## 0.14 (August 13 2024)
 * Bump requests to 2.32.0 ([@mzdrale](http://github.com/mzdrale))
 

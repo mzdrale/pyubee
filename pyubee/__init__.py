@@ -11,6 +11,8 @@ from requests.exceptions import RequestException
 
 import json
 
+import urllib3
+urllib3.disable_warnings()
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_TRAFFIC = logging.getLogger(__name__ + '.traffic')
@@ -366,7 +368,7 @@ class Ubee:
         """Do a HTTP GET."""
         if hasattr(self, 'authenticator') and isinstance(self.authenticator, DigestAuthAuthenticator):
             # We are using digest auth:
-            response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT, auth=HTTPDigestAuth(self.username, self.password))
+            response = requests.get(url, verify=False, timeout=HTTP_REQUEST_TIMEOUT, auth=HTTPDigestAuth(self.username, self.password))
             return response
         # Use the rudimentary auth
         # pylint: disable=no-self-use
@@ -388,7 +390,7 @@ class Ubee:
         for key, value in req_headers.items():
             _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
 
-        response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT, headers=req_headers)
+        response = requests.get(url, verify=False, timeout=HTTP_REQUEST_TIMEOUT, headers=req_headers)
         _LOGGER.debug('Response status code: %s', response.status_code)
 
         _LOGGER_TRAFFIC.debug('Received response:')
@@ -403,7 +405,7 @@ class Ubee:
     def _post(self, url, data, **headers):
         if hasattr(self, 'authenticator') and isinstance(self.authenticator, DigestAuthAuthenticator):
             # We are using digest auth:
-            response = requests.post(url, data=data, timeout=HTTP_REQUEST_TIMEOUT, auth=HTTPDigestAuth(self.username, self.password))
+            response = requests.post(url, verify=False, data=data, timeout=HTTP_REQUEST_TIMEOUT, auth=HTTPDigestAuth(self.username, self.password))
             return response
         # Use the rudimentary auth
         """Do a HTTP POST."""
@@ -427,7 +429,7 @@ class Ubee:
             _LOGGER_TRAFFIC.debug('  Header: %s: %s', key, value)
         _LOGGER_TRAFFIC.debug('  Data: %s', repr(data))
 
-        response = requests.post(url, data=data, timeout=HTTP_REQUEST_TIMEOUT, headers=req_headers)
+        response = requests.post(url, verify=False, data=data, timeout=HTTP_REQUEST_TIMEOUT, headers=req_headers)
         _LOGGER.debug('Response status code: %s', response.status_code)
 
         _LOGGER_TRAFFIC.debug('Received response:')
