@@ -7,7 +7,7 @@ setuptools.setup(
     name="pyubee",
     version="0.15",
     install_requires=[
-        "requests==2.32.0",
+        "requests==2.32.4",
     ],
     author="Miroslav Zdrale",
     author_email="mzdrale@gmail.com",
